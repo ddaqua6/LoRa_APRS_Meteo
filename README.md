@@ -4,7 +4,8 @@ Features: measures temperature, pressure (with BMP280) and wind (with hall senso
 Source code is in src/main.cpp, before running your station please check:<br>
 - you have a valid HAM radio license
 - you have edited <b>config.h</b> and wrote your own configuration
-<br>
+<br><br>
+If you need help or have any questions or suggestions, please reach me: david(at)ok2dds.cz
 <h2>Setup guide</h2><br>
 1. Download this repository and open it in PlatformIO. It should obtain all dependencies automatically, otherwise they are listed in platformio.ini.<br>
 2. Edit include/config.h.<br>
