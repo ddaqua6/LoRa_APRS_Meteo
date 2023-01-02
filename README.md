@@ -33,9 +33,12 @@ Please keep all settings you don't understand or need to false. Do not use exper
 If the meteostation is connected to Wi-Fi, it runs a tiny webserver. Some of the endpoints are even suitable for browser use.<br>Access your station dashboard with entering your station IP to your browser. For accessing from outside your home network, make sure you open ports 80 and 5028 (websocket).<br><br>
 
 / - meteo dashboard with WebSocket (the values update automatically)<br>
+![Preview](https://github.com/ddaqua6/LoRa_APRS_Meteo/blob/main/img/meteo.png)<br>
 /lora - station dashboard<br>
-/watch - meteo dashboard without WebSocket suitable for small displays, e.g. smartwatch<br>
-/graphs - charts of weather history<br><br>
+![Preview](https://github.com/ddaqua6/LoRa_APRS_Meteo/blob/main/img/dashboard.png)<br>
+/graphs - charts of weather history<br>
+![Preview](https://github.com/ddaqua6/LoRa_APRS_Meteo/blob/main/img/charts.png)<br>
+/watch - meteo dashboard without WebSocket suitable for small displays, e.g. smartwatch<br><br>
 Command endpoints<br>
 /switch-meteo - meteo APRS beacon on/off<br>
 /switch-aprs - APRS-IS on/off<br>
