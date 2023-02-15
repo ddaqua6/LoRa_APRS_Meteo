@@ -114,7 +114,7 @@ void setup() {
       aprsis_connect();
     }
   }
-  
+
   // BMP
   if (!bmp.begin(0x76)) {
     Serial.println("BMP280 not connected");
@@ -129,7 +129,7 @@ void setup() {
 
   if (Use_IGATE) lastIgBeacon = millis() - int(IGATE_BEACON * 60000);
   delay(1000);
-  voltage = float(analogRead(35)) / 4095*2*3.3*1.1;
+  voltage = float(analogRead(HALL_SENSOR_PIN)) / 4095*2*3.3*1.1;
   delay(10);
   beacon_meteo();
   Serial.println("Startup finished.");
@@ -188,7 +188,7 @@ void loop() {
               if (GETIndex(header, "/api/graphs-json"))
                 client.println("{\"temperature\": [" + String(tempValues) + "], \"pressure\": [" + String(pressValues) + "], \"wind\": [" + String(windValues) + "]}");
               if (GETIndex(header, "/api/json"))
-                client.println("{\"general\": {\"version\":" + String(VERSION) + ", \"system_time\":" + String(millis()) + " , \"voltage\":" + String(voltage) + ", \"wifi_status\":" + (check_wifi() ? "true" : "false") + ", \"wifi_signal_db\":" + (check_wifi() ? String(WiFi.RSSI()) : "0") + "}, \"lora\": {\"meteo_callsign\":\"" + String(METEO_CALLSIGN) + "\", \"igate_callsign\":\"" + String(IGATE_CALLSIGN) + "\", \"aprs_is_status\":" + (check_aprsis() ? "true" : "false") + ", \"aprs_is_server\":\"" + (check_aprsis() ? String(APRSISServer) : "disconnected") + "\", \"hall_sensor\":" + String(anemoACValue) + ", \"last_rx\":\"" + String(lastRXstation) + "\"" + "}, \"meteo\": {\"temperature\":" + valueForJSON(tempToWeb(getBMPTempC())) + ", \"pressure\":" + valueForJSON(pressToWeb(int(getPressure()))) + ", \"actual_wind\":" + valueForJSON(windToWeb(windActualSpeed)) + ", \"long_period_wind\":" + valueForJSON(windToWeb(windLongPeriodSpeed)) + ", \"gust\":" + valueForJSON(windToWeb(gust)) + ", \"min_temperature\":" + (getBMPstatus() ? String(minTemp) : "0") + ", \"max_temperature\":" + (getBMPstatus() ? String(maxTemp) : "0") + ", \"min_pressure\":" + (getBMPstatus() ? String(minPress) : "0") + ", \"max_pressure\":" + (getBMPstatus() ? String(maxPress) : "0") + ", \"max_wind\":" + String(maxWind) + ", \"max_gust\":" + String(maxGust) + "}}");
+                client.println("{\"general\": {\"version\":\"" + String(VERSION) + "\", \"destcall\":\"" + String(DESTCALL) + "\", \"system_time\":" + String(millis()) + ", \"voltage\":" + String(voltage) + ", \"battery\":" + String(battPercent) + ", \"wifi_status\":" + (check_wifi() ? "true" : "false") + ", \"wifi_signal_db\":" + (check_wifi() ? String(WiFi.RSSI()) : "0") + ", \"wifi_ssid\":\"" + String(WiFi.SSID()) + "\", \"wifi_hostname\":\"" + String(Hostname) + "\", \"bmp280_status\":" + (getBMPstatus() ? "true" : "false") + "}, \"lora\": {\"meteo_callsign\":\"" + String(METEO_CALLSIGN) + "\", \"meteo_enabled\":" + (meteoSwitch ? "true" : "false") + ", \"igate_callsign\":\"" + String(IGATE_CALLSIGN) + "\", \"aprs_is_enabled\":" + (aprsSwitch ? "true" : "false") + ", \"aprs_is_status\":" + (check_aprsis() ? "true" : "false") + ", \"aprs_is_server\":\"" + (check_aprsis() ? String(APRSISServer) : "disconnected") + "\", \"hall_sensor\":" + String(anemoACValue) + ", \"last_rx\":\"" + String(lastRXstation) + "\"" + "}, \"meteo\": {\"temperature\":" + valueForJSON(tempToWeb(getBMPTempC())) + ", \"pressure\":" + valueForJSON(pressToWeb(int(getPressure()))) + ", \"actual_wind\":" + valueForJSON(windToWeb(windActualSpeed)) + ", \"long_period_wind\":" + valueForJSON(windToWeb(windLongPeriodSpeed)) + ", \"gust\":" + valueForJSON(windToWeb(gust)) + ", \"min_temperature\":" + (getBMPstatus() ? String(minTemp) : "0") + ", \"max_temperature\":" + (getBMPstatus() ? String(maxTemp) : "0") + ", \"min_pressure\":" + (getBMPstatus() ? String(minPress) : "0") + ", \"max_pressure\":" + (getBMPstatus() ? String(maxPress) : "0") + ", \"max_wind\":" + String(maxWind) + ", \"max_gust\":" + String(maxGust) + "}}");
             } else {
             client.println(String(webPageStart));
             if (!GETIndex(header, "/watch")) client.println(String(webPageHeader) + "</h1><br>");
@@ -342,13 +342,13 @@ void loop() {
   }
 
   ws.cleanupClients();
-  if (Use_WiFi && isWSconnected && lastWSupdate + 1000 < millis()) updateWebSocket();
+  if (Use_WiFi && isWSconnected && lastWSupdate + 300 < millis()) updateWebSocket();
 
   if (Use_IGATE && check_wifi() && check_aprsis() && lastIgBeacon + (IGATE_BEACON * 60000) < millis()) beacon_igate();
   if (meteoSwitch && lastMtBeacon + (METEO_BEACON * 60000) < millis()) beacon_meteo();
   if (Use_UPLOAD && check_wifi() && lastUpload + (UPLOAD_TIMEOUT * 60000) < millis()) beacon_upload();
 
-  voltage = float(analogRead(35)) / 4095*2*3.3*1.1;
+  voltage = float(analogRead(HALL_SENSOR_PIN)) / 4095*2*3.3*1.1;
   battPercent = 100 * (voltage - 3.3) / (4.2 - 3.3);
   if (battPercent > 100) battPercent = 100;
   if (battPercent < 0) battPercent = 0;
@@ -583,11 +583,16 @@ void beacon_meteo() {
     pressValues = addGraphValue(pressValues, spress);
     if (press < minPress || minPress == -1000) minPress = press;
     if (press > maxPress) maxPress = press;
+  } else {
+    tempValues = addGraphValue(tempValues, "N/A");
+    pressValues = addGraphValue(pressValues, "N/A");
   }
   if (USE_ANEMOMETER) {
     windValues = addGraphValue(windValues, String(windLongPeriodSpeed));
     if (windLongPeriodSpeed > maxWind) maxWind = windLongPeriodSpeed;
     if (gust > maxGust) maxGust = gust;
+  } else {
+    windValues = addGraphValue(windValues, "N/A");
   }
   gust = 0;
 }
@@ -638,8 +643,9 @@ String getBMPTempAPRS() {
 
 float getPressure() {
   if (BMPstatus)
-  return (bmp.readPressure() / 100) + BMP_OFFSET_PRESS;
-  else return 0;
+    return (bmp.readPressure() / 100) + BMP_OFFSET_PRESS;
+  else
+    return 0;
 }
 
 String getPressureAPRS() {
@@ -744,7 +750,7 @@ String addGraphValue(String values, String value) {
   if (count > int(GRAPH_LIMIT) - 2)
     values = values.substring(values.indexOf(",") + 1);
   if (values != "") values += ",";
-  values += value;
+  values += valueForJSON(value);
   return values;
 }
 

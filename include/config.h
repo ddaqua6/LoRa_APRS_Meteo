@@ -21,12 +21,12 @@ const char* password = "mywifipassword";		// WiFi Password
 #define HALL_SENSOR_PIN 35                 // use only ADC_1 pins
 #define ANEMOMETER_LENGTH 0.25           // how long distance (meters) is done by spinning anemometer from one magnet to the next one
 #define ANEMO_RECALC_LIMIT 2            // calibrate hall sensor
-#define ANEMO_AC_THRESHOLD 1830          // threshold to trigger magnet detection
-#define ANEMO_AC_LOSE      2000          // threshold - magnet is away
-#define ANEMO_RECALC_LIMIT_TIMEOUT 600  // auto update long-period speed after x seconds
-#define ANEMO_RECALC_ACTUAL_SPEED 7    // set actual wind speed to 0 if anemometer is not spinning for x seconds
+#define ANEMO_AC_THRESHOLD 1830          // analog value threshold to trigger magnet detection
+#define ANEMO_AC_LOSE      2000          // analog value threshold - magnet is away
+#define ANEMO_RECALC_LIMIT_TIMEOUT 900  // auto update long-period speed after x seconds (should be METEO_BEACON * 60)
+#define ANEMO_RECALC_ACTUAL_SPEED 4    // set actual wind speed to 0 if anemometer is not spinning for x seconds
 
-#define BMP_OFFSET_TEMP -1          // calibrate your BMP sensor
+#define BMP_OFFSET_TEMP -1          // calibrate your BMP sensor (these values will be added to values measured by BMP for calibration)
 #define BMP_OFFSET_PRESS 28
 
 // IGATE SERVICE SETTINGS
@@ -68,8 +68,8 @@ const char* password = "mywifipassword";		// WiFi Password
 #define LoRa_SpreadingFactor 12
 #define LoRa_SignalBandwidth 125000
 #define LoRa_CodingRate4 5
-#define VERSION 3.1
-#define DESTCALL "APLGM3"
+#define VERSION "4.0"
+#define DESTCALL "APLGM4"
 
 // DEBUG SETTINGS
 

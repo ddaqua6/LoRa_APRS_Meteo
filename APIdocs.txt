@@ -1,0 +1,75 @@
+/ - HTML meteo webpage with WebSocket (on port 5028)
+/lora - HTML station dashboard
+/watch - HTML dashboard for small displays (e.g. watch)
+/switch-meteo - meteo on/off
+/switch-aprs - APRS-IS on/off
+/change-aprsis - shows dialog window (alert) for APRS-IS server change
+/new-aprsis/newServer - changes APRS-IS server to newServer
+/restart - ESP32 restart
+/tx/custPkt - sends custPkt over LoRa
+/reset-tx - reset of all timeouts
+/api/meteo - CSV of actual meteo values (temperature, pressure, actual wind m/s, long-period wind m/s, max gust m/s)
+/api/graphs-json - JSON of historic meteo values (according to limit in config GRAPH_LIMIT)
+Example:
+{
+  "temperature": [
+    -1.5,
+    1.38,
+    ...
+    8.21,
+    8.35
+  ],
+  "pressure": [
+    1025,
+    1025,
+    ...
+    1023,
+    1023
+  ],
+  "wind": [
+    1.75,
+    1.5,
+    ...
+    1.25,
+    1
+  ]
+}
+/api/json - complete JSON of all values
+Example:
+{
+	"general": {
+		"version": "4.0",
+		"destcall": "APLGM4",
+		"system_time": 172848,
+		"voltage": 4.14,
+		"battery": 70,
+		"wifi_status": true,
+		"wifi_signal_db": -45,
+		"wifi_ssid": "Home Wi-Fi",
+		"wifi_hostname": "LORAMETEO",
+		"bmp280_status": true
+	},
+	"lora": {
+		"meteo_callsign": "OK2DDS-6",
+		"meteo_enabled": true,
+		"igate_callsign": "OK2DDS-1",
+		"aprs_is_enabled": true,
+		"aprs_is_status": true,
+		"aprs_is_server": "czech.aprs2.net",
+		"hall_sensor": 2000,
+		"last_rx": "OK2DDS-7"
+	},
+	"meteo": {
+		"temperature": 10.0,
+		"pressure": 1013,
+		"actual_wind": 2.25,
+		"long_period_wind": 0.5,
+		"gust": 3.5,
+		"min_temperature": -10,
+		"max_temperature": 30,
+		"min_pressure": 990,
+		"max_pressure": 1020,
+		"max_wind": 4,
+		"max_gust": 6.5
+	}
+}
