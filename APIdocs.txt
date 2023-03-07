@@ -8,6 +8,10 @@
 /restart - ESP32 restart
 /tx/custPkt - sends custPkt over LoRa
 /reset-tx - reset of all timeouts
+/reset-bmp - reset of maximal and minimal temperature and pressure values history
+/reset-temp - reset of maximal and minimal temperature values history
+/reset-press - reset of maximal and minimal pressure values history
+/reset-wind - reset of maximal and minimal wind values history
 /api/meteo - CSV of actual meteo values (temperature, pressure, actual wind m/s, long-period wind m/s, max gust m/s)
 /api/graphs-json - JSON of historic meteo values (according to limit in config GRAPH_LIMIT)
 Example:

@@ -46,7 +46,11 @@ If the meteostation is connected to Wi-Fi, it runs a tiny webserver. Some of the
 /new-aprsis/newServer - change APRS-IS server<br>
 /restart - station restart (all stored values, as minimal and maximal temperature etc. will be lost)<br>
 /tx/custPkt - sends custom packet via LoRa<br>
-/reset-tx - resets timeouts<br><br>
+/reset-tx - resets timeouts<br>
+/reset-bmp - reset of maximal and minimal temperature and pressure values history<br>
+/reset-temp - reset of maximal and minimal temperature values history<br>
+/reset-press - reset of maximal and minimal pressure values history<br>
+/reset-wind - reset of maximal and minimal wind values history<br><br>
 <b>API endpoints suitable for working with your projects providing data in machine-readable format</b><br>
 /api/meteo - CSV of meteo values<br>
 /api/graphs-json - JSON of history of meteo values (same as on /graphs but only values in JSON)<br>
