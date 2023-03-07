@@ -9,6 +9,9 @@
 #include <ESPAsyncWebServer.h>
 #include "website.h"
 
+String VERSION = "4.1";
+String DESTCALL = "APLGM4";
+
 void lora_setup();
 void lora_send(String tx_data);
 void aprsis_connect();
@@ -74,7 +77,7 @@ int maxPress;
 float maxWind;
 float maxGust;
 String addGraphValue(String values, String value);
-String generateGraph(String values, String graphName, String graphID, float minVal, float maxVal, int r, int g, int b);
+String generateGraph(String values, String graphName, String graphID, int r, int g, int b);
 
 void hall_change();
 float mph(float metersPerSeconds);
@@ -212,6 +215,28 @@ void loop() {
               lastMtBeacon = millis();
               client.println("<br>TX reset done.<br>");
             }
+            if (GETIndex(header, "/reset-temp")) {
+              minTemp = getBMPTempC();
+              maxTemp = minTemp;
+              client.println("<br>Temperature reset done.<br>");
+            }
+            if (GETIndex(header, "/reset-press")) {
+              minPress = getPressure();
+              maxPress = minPress;
+              client.println("<br>Pressure reset done.<br>");
+            }
+            if (GETIndex(header, "/reset-bmp")) {
+              minTemp = getBMPTempC();
+              maxTemp = minTemp;
+              minPress = getPressure();
+              maxPress = minPress;
+              client.println("<br>BMP values reset done.<br>");
+            }
+            if (GETIndex(header, "/reset-wind")) {
+              maxWind = windLongPeriodSpeed;
+              maxGust = windActualSpeed;
+              client.println("<br>Wind reset done.<br>");
+            }
             if (GETIndex(header, "/lora"))
               client.println("<br>Version: " + String(VERSION) + "<br><br> Voltage: " + String(voltage) + "V<br>Battery: " + String(battPercent) + "%<br>Wi-Fi: " + (check_wifi() ? String(WiFi.SSID()) + " " + String(WiFi.RSSI()) + " dB<br>IP: " + ipToString(WiFi.localIP()) : String("not connected")) + String("<br>APRS-IS: ") + (aprsis.connected() ? "connected" : "not connected") + "<br>Last RX: " + String(lastRXstation) + "<br>Hall sensor: " + String(anemoACValue) + "<br><br>");
             if ((GETIndex(header, "/lora") || GETIndex(header, "/min-max")) && USE_METEO && (BMPstatus || USE_ANEMOMETER)) {
@@ -227,6 +252,7 @@ void loop() {
               client.println("</table><br>");
             }
             if (GETIndex(header, "/lora")) {
+              client.println("<br>Reset values<br><a href='/reset-bmp'>BMP values</a> - <a href='/reset-temp'>Temperature</a> - <a href='/reset-press'>Pressure</a> - <a href='/reset-wind'>Wind</a><br>");
               client.println("<br><a href='/switch-meteo'>Turn meteo On/Off</a> (" + String(meteoSwitch ? "ON" : "OFF") + ")");
               client.println("<br><a href='/switch-aprs'>Turn IGate On/Off</a> (" + String(aprsSwitch ? "ON" : "OFF") + ")");
               client.println("<br><a href='/change-aprsis'>Change APRS-IS server</a> (" + String(APRSISServer) + ")");
@@ -239,11 +265,11 @@ void loop() {
               else
                 client.println("<br>No graphs to display.<br>");
               if (BMPstatus) {
-                client.println(generateGraph(tempValues, "Temperature", "temp", minTemp, maxTemp, 230, 0, 0));
-                client.println(generateGraph(pressValues, "Pressure", "press", minPress, maxPress, 0, 125, 0));
+                client.println(generateGraph(tempValues, "Temperature", "temp", 230, 0, 0));
+                client.println(generateGraph(pressValues, "Pressure", "press", 0, 125, 0));
               }
               if (USE_ANEMOMETER)
-                client.println(generateGraph(windValues, "Average wind (m/s)", "wind", 0.00, maxWind, 0, 0, 255));
+                client.println(generateGraph(windValues, "Average wind (m/s)", "wind", 0, 0, 255));
               client.println("<a href='/'>View main meteo page</a>");
             }
             if (GETIndex(header, "/tx")) {
@@ -342,7 +368,7 @@ void loop() {
   }
 
   ws.cleanupClients();
-  if (Use_WiFi && isWSconnected && lastWSupdate + 300 < millis()) updateWebSocket();
+  if (Use_WiFi && isWSconnected && lastWSupdate + 700 < millis()) updateWebSocket();
 
   if (Use_IGATE && check_wifi() && check_aprsis() && lastIgBeacon + (IGATE_BEACON * 60000) < millis()) beacon_igate();
   if (meteoSwitch && lastMtBeacon + (METEO_BEACON * 60000) < millis()) beacon_meteo();
@@ -754,7 +780,7 @@ String addGraphValue(String values, String value) {
   return values;
 }
 
-String generateGraph(String values, String graphName, String graphID, float minVal, float maxVal, int r, int g, int b) {
+String generateGraph(String values, String graphName, String graphID, int r, int g, int b) {
   String graphScript = "<b style='width: 100%; text-align: center'>" + graphName +"</b><br><br><canvas id='" + graphID + "' style='width:100%'></canvas> \
   <script>var yValues = [" + values + "]; \
   var xValues = [";
@@ -771,8 +797,13 @@ String generateGraph(String values, String graphName, String graphID, float minV
     if (i != count) graphScript += ",";
   }
   
-  graphScript += "]; \
-  new Chart('" + graphID + "', {\
+  graphScript += "];";
+  if (values != "") {
+    graphScript += "var " + graphID + "_min = Math.min(...yValues); var " + graphID + "_max = Math.max(...yValues);";
+  } else {
+    graphScript += "var " + graphID + "_min = 0; var " + graphID + "_max = 0;";
+  }
+  graphScript += "new Chart('" + graphID + "', {\
   type: 'line',\
   data: {\
     labels: xValues,\
@@ -791,7 +822,7 @@ String generateGraph(String values, String graphName, String graphID, float minV
   options: {\
     legend: {display: false},\
     scales: {\
-      yAxes: [{ticks: {min: " + String(minVal) + ", max: " + String(maxVal) + "}}]\
+      yAxes: [{ticks: {min: " + graphID + "_min, max: " + graphID + "_max}}]\
     }\
   }\
   });\
