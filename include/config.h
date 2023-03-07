@@ -68,8 +68,6 @@ const char* password = "mywifipassword";		// WiFi Password
 #define LoRa_SpreadingFactor 12
 #define LoRa_SignalBandwidth 125000
 #define LoRa_CodingRate4 5
-#define VERSION "4.0"
-#define DESTCALL "APLGM4"
 
 // DEBUG SETTINGS
 
