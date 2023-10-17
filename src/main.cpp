@@ -9,8 +9,9 @@
 #include <ESPAsyncWebServer.h>
 #include "website.h"
 
-String VERSION = "4.1";
-String DESTCALL = "APLGM4";
+String VERSION = "4.2";
+String DESTCALL_METEO = "APLDM0";
+String DESTCALL_IGATE = "APLGI0";
 
 void lora_setup();
 void lora_send(String tx_data);
@@ -191,7 +192,7 @@ void loop() {
               if (GETIndex(header, "/api/graphs-json"))
                 client.println("{\"temperature\": [" + String(tempValues) + "], \"pressure\": [" + String(pressValues) + "], \"wind\": [" + String(windValues) + "]}");
               if (GETIndex(header, "/api/json"))
-                client.println("{\"general\": {\"version\":\"" + String(VERSION) + "\", \"destcall\":\"" + String(DESTCALL) + "\", \"system_time\":" + String(millis()) + ", \"voltage\":" + String(voltage) + ", \"battery\":" + String(battPercent) + ", \"wifi_status\":" + (check_wifi() ? "true" : "false") + ", \"wifi_signal_db\":" + (check_wifi() ? String(WiFi.RSSI()) : "0") + ", \"wifi_ssid\":\"" + String(WiFi.SSID()) + "\", \"wifi_hostname\":\"" + String(Hostname) + "\", \"bmp280_status\":" + (getBMPstatus() ? "true" : "false") + "}, \"lora\": {\"meteo_callsign\":\"" + String(METEO_CALLSIGN) + "\", \"meteo_enabled\":" + (meteoSwitch ? "true" : "false") + ", \"igate_callsign\":\"" + String(IGATE_CALLSIGN) + "\", \"aprs_is_enabled\":" + (aprsSwitch ? "true" : "false") + ", \"aprs_is_status\":" + (check_aprsis() ? "true" : "false") + ", \"aprs_is_server\":\"" + (check_aprsis() ? String(APRSISServer) : "disconnected") + "\", \"hall_sensor\":" + String(anemoACValue) + ", \"last_rx\":\"" + String(lastRXstation) + "\"" + "}, \"meteo\": {\"temperature\":" + valueForJSON(tempToWeb(getBMPTempC())) + ", \"pressure\":" + valueForJSON(pressToWeb(int(getPressure()))) + ", \"actual_wind\":" + valueForJSON(windToWeb(windActualSpeed)) + ", \"long_period_wind\":" + valueForJSON(windToWeb(windLongPeriodSpeed)) + ", \"gust\":" + valueForJSON(windToWeb(gust)) + ", \"min_temperature\":" + (getBMPstatus() ? String(minTemp) : "0") + ", \"max_temperature\":" + (getBMPstatus() ? String(maxTemp) : "0") + ", \"min_pressure\":" + (getBMPstatus() ? String(minPress) : "0") + ", \"max_pressure\":" + (getBMPstatus() ? String(maxPress) : "0") + ", \"max_wind\":" + String(maxWind) + ", \"max_gust\":" + String(maxGust) + "}}");
+                client.println("{\"general\": {\"version\":\"" + String(VERSION) + "\", \"destcall_meteo\":\"" + String(DESTCALL_METEO) + "\", \"destcall_igate\":\"" + String(DESTCALL_IGATE) + "\", \"system_time\":" + String(millis()) + ", \"voltage\":" + String(voltage) + ", \"battery\":" + String(battPercent) + ", \"wifi_status\":" + (check_wifi() ? "true" : "false") + ", \"wifi_signal_db\":" + (check_wifi() ? String(WiFi.RSSI()) : "0") + ", \"wifi_ssid\":\"" + String(WiFi.SSID()) + "\", \"wifi_hostname\":\"" + String(Hostname) + "\", \"bmp280_status\":" + (getBMPstatus() ? "true" : "false") + "}, \"lora\": {\"meteo_callsign\":\"" + String(METEO_CALLSIGN) + "\", \"meteo_enabled\":" + (meteoSwitch ? "true" : "false") + ", \"igate_callsign\":\"" + String(IGATE_CALLSIGN) + "\", \"aprs_is_enabled\":" + (aprsSwitch ? "true" : "false") + ", \"aprs_is_status\":" + (check_aprsis() ? "true" : "false") + ", \"aprs_is_server\":\"" + (check_aprsis() ? String(APRSISServer) : "disconnected") + "\", \"hall_sensor\":" + String(anemoACValue) + ", \"last_rx\":\"" + String(lastRXstation) + "\"" + "}, \"meteo\": {\"temperature\":" + valueForJSON(tempToWeb(getBMPTempC())) + ", \"pressure\":" + valueForJSON(pressToWeb(int(getPressure()))) + ", \"actual_wind\":" + valueForJSON(windToWeb(windActualSpeed)) + ", \"long_period_wind\":" + valueForJSON(windToWeb(windLongPeriodSpeed)) + ", \"gust\":" + valueForJSON(windToWeb(gust)) + ", \"min_temperature\":" + (getBMPstatus() ? String(minTemp) : "0") + ", \"max_temperature\":" + (getBMPstatus() ? String(maxTemp) : "0") + ", \"min_pressure\":" + (getBMPstatus() ? String(minPress) : "0") + ", \"max_pressure\":" + (getBMPstatus() ? String(maxPress) : "0") + ", \"max_wind\":" + String(maxWind) + ", \"max_gust\":" + String(maxGust) + "}}");
             } else {
             client.println(String(webPageStart));
             if (!GETIndex(header, "/watch")) client.println(String(webPageHeader) + "</h1><br>");
@@ -451,7 +452,7 @@ void loop() {
       digiOutput = true;
 
       // send status
-      statusMessage = String(IGATE_CALLSIGN) + ">" + String(DESTCALL) + ":>Last RX: " + String(sourceCall) + " SNR=" + String(LoRa.packetSnr()) + "dB RSSI=" + String(LoRa.packetRssi()) + "dB";
+      statusMessage = String(IGATE_CALLSIGN) + ">" + String(DESTCALL_IGATE) + ":>Last RX: " + String(sourceCall) + " SNR=" + String(LoRa.packetSnr()) + "dB RSSI=" + String(LoRa.packetRssi()) + "dB";
       if (aprsSwitch && USE_LASTRX_STATUS && originalPath.indexOf("*") == -1)
         aprsis_send(statusMessage);
 
@@ -582,7 +583,7 @@ void aprsis_send(String aprsis_packet) {
 void beacon_igate() {
   lastIgBeacon = millis();
   if (Use_IGATE && check_wifi()) {
-    String beacon = String(IGATE_CALLSIGN) + ">" + String(DESTCALL) + ":!" + String(IGATE_LAT) + "L" + String(IGATE_LON) + "&" + String(IGATE_COMMENT);
+    String beacon = String(IGATE_CALLSIGN) + ">" + String(DESTCALL_IGATE) + ":!" + String(IGATE_LAT) + "L" + String(IGATE_LON) + "&" + String(IGATE_COMMENT);
     if (IGATE_BCN_NETWORK) {
       aprsis_send(beacon);
     } else if (Use_IGATE) {
@@ -595,7 +596,7 @@ void beacon_igate() {
 void beacon_meteo() {
   lastMtBeacon = millis();
   if (meteoSwitch && BMPstatus) {
-    String meteoBeacon = String(METEO_CALLSIGN) + ">" + String(DESTCALL) + ":!" + String(METEO_LAT) + "/" + String(METEO_LON) + "_.../" + String(windSpeedAPRS(windLongPeriodSpeed)) + "g" +  String(windSpeedAPRS(gust)) + "t" + String(getBMPTempAPRS()) + "b" + String(getPressureAPRS()) + String(METEO_COMMENT) + " U=" + String(voltage) + "V";
+    String meteoBeacon = String(METEO_CALLSIGN) + ">" + String(DESTCALL_METEO) + ":!" + String(METEO_LAT) + "/" + String(METEO_LON) + "_.../" + String(windSpeedAPRS(windLongPeriodSpeed)) + "g" +  String(windSpeedAPRS(gust)) + "t" + String(getBMPTempAPRS()) + "b" + String(getPressureAPRS()) + String(METEO_COMMENT) + " U=" + String(voltage) + "V";
     lora_send(meteoBeacon);
   }
   if (BMPstatus) {
@@ -624,7 +625,7 @@ void beacon_meteo() {
 }
 
 void beacon_meteo_status() {
-  String meteoStatus = String(METEO_CALLSIGN) + ">" + String(DESTCALL) + ":>" + String(METEO_STATUS);
+  String meteoStatus = String(METEO_CALLSIGN) + ">" + String(DESTCALL_METEO) + ":>" + String(METEO_STATUS);
   aprsis_send(meteoStatus);
 }
 
