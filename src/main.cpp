@@ -11,7 +11,7 @@
 
 String VERSION = "4.2";
 String DESTCALL_METEO = "APLDM0";
-String DESTCALL_IGATE = "APLGI0";
+String DESTCALL_IGATE = "APLDI0";
 
 void lora_setup();
 void lora_send(String tx_data);
