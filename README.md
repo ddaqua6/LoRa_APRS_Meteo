@@ -86,7 +86,8 @@ Example:
 {
 	"general": {
 		"version": "4.0",
-		"destcall": "APLGM4",
+		"destcall_meteo": "APLDM0",
+		"destcall_igate": "APLDI0",
 		"system_time": 172848,
 		"voltage": 4.14,
 		"battery": 70,
