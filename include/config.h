@@ -13,11 +13,12 @@ const char* password = "mywifipassword";		// WiFi Password
 #define METEO_LAT "4000.00N"
 #define METEO_LON "01600.00E"
 #define METEO_COMMENT "LoRa IGate&Meteo"
+#define STATION_ALTITUDE 235            // station altitude for weather calculations (meters ASL)
 #define USE_METEO_STATUS false           // send status below in timeout of igate packet (needs wifi, igate on and aprs-is)
 #define METEO_STATUS "e.g. your website link"
 #define GRAPH_LIMIT 144                   // how many values to store for graphs (too high can cause errors)
 
-#define USE_ANEMOMETER true                     // turn on/off wind meter
+#define USE_ANEMOMETER false                     // turn on/off wind meter
 #define HALL_SENSOR_PIN 35                 // use only ADC_1 pins
 #define ANEMOMETER_LENGTH 0.25           // how long distance (meters) is done by spinning anemometer from one magnet to the next one
 #define ANEMO_RECALC_LIMIT 2            // calibrate hall sensor
@@ -25,6 +26,10 @@ const char* password = "mywifipassword";		// WiFi Password
 #define ANEMO_AC_LOSE      2000          // analog value threshold - magnet is away
 #define ANEMO_RECALC_LIMIT_TIMEOUT 900  // auto update long-period speed after x seconds (should be METEO_BEACON * 60)
 #define ANEMO_RECALC_ACTUAL_SPEED 4    // set actual wind speed to 0 if anemometer is not spinning for x seconds
+
+#define USE_PMSENSOR false            // turn on/off particle matter sensor
+#define PMSENSOR_CLEAN_DAYS 4        // auto clean the sensor each x days (default 4)
+#define PMSENSOR_CLEAN_ON_STARTUP true // startup takes more time, but recommended to clean it
 
 #define BMP_OFFSET_TEMP -1          // calibrate your BMP sensor (these values will be added to values measured by BMP for calibration)
 #define BMP_OFFSET_PRESS 28
@@ -73,5 +78,7 @@ const char* password = "mywifipassword";		// WiFi Password
 
 #define ANEMO_DEBUG_MODE false                        // enable debug mode for hall sensor
 #define HTTP_DEBUG_MODE false                          // print incoming HTTP requests
+#define PM_DEBUG_MODE false                             // print PM values
+
 // EXPERIMENTAL DEBUG ONLY SETTINGS
 #define DIGI_IGNORE_PARADIGM false       // digipeat packets regardless if they contain WIDEn-N
